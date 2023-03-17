@@ -4,8 +4,8 @@
 
 enum ErrorCode {
 	Ok = 0,
-	texturesLoadErr = 1 << 0,
-	openBinFileErr = 1 << 1,
+	texturesLoadErr  = 1 << 0,
+	openBinFileErr   = 1 << 1,
 	openMusicFileErr = 1 << 2,
 };
 
@@ -258,6 +258,10 @@ size_t fsize(const char* filename);
 
 ErrorCode CRACK();
 
-void drawMiniGame(sf::RenderWindow* window, Background* background, Table* table, Hero* hero);
+void ConfigText(sf::Text* text, sf::Font* font, const char* string, sf::Color color = sf::Color::White, sf::Text::Style style = sf::Text::Bold);
+
+void ConfigTable(sf::RectangleShape* rectangular, sf::Color outLinecolor = sf::Color::Black, sf::Color color = sf::Color::Red);
+
+void drawMiniGame(sf::RenderWindow* window, Background* background, sf::Text* text, sf::RectangleShape* table, Hero* hero);
 
 void drawScene(sf::RenderWindow* window, Background* background, ProgressBar* progressBar);

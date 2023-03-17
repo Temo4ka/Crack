@@ -11,9 +11,17 @@ int main()
 {
     CrackFlag crackFlag = Inactive;
 
-    sf::Clock clock = {};
-    sf::View   view = {};
-    sf::Music music = {};
+    sf::    Clock        clock    = {};
+    sf::    View         view     = {};
+    sf::    Music        music    = {};
+    sf::    Font         font     = {};
+    sf::    Text         text     = {};
+    sf::RectangleShape rectangle;
+
+    ERR_EXE((font.loadFromFile(FONT_PACKAGE) == 0));
+
+    ConfigText (&text, &font, CRACK_STRING);
+    ConfigTable(&rectangle);
 
     if (!music.openFromFile(MUSIC)) ERR_EXE(openMusicFileErr);
 
@@ -58,7 +66,7 @@ int main()
         
         window.setView(view);
         if (crackFlag == Inactive)
-            drawMiniGame(&window, &background, &crack, &hero);
+            drawMiniGame(&window, &background, &text, &rectangle, &hero);
         else {
             progressBar.Update(time, &crackFlag);
 
@@ -77,17 +85,6 @@ int main()
     return EXIT_SUCCESS;
 }
 
-void drawMiniGame(sf::RenderWindow* window, Background* background, Table* table, Hero* hero) {
-    (*window).draw((*background).getSprite());
-    (*window).draw(  (*table)   .getSprite());
-    (*window).draw(   (*hero)   .getSprite());
-}
-
-void drawScene(sf::RenderWindow* window, Background* background, ProgressBar* progressBar) {
-    (*window).draw((*background).getSprite());
-    (*window).draw((*progressBar).getSprite());
-}
-
 ErrorCode CRACK() {
     size_t BinFileSize = fsize(INPUT_BINFILE);
 
@@ -98,9 +95,13 @@ ErrorCode CRACK() {
     if (streamOut == nullptr) return openBinFileErr;
 
     char* buffer = (char*) calloc(BinFileSize + 1, sizeof(char));
-    fread(buffer, sizeof(char), BinFileSize, streamIn);
-    buffer[BinFileSize] = '\0';
 
+    if (buffer == nullptr)
+        return openBinFileErr;
+    else {
+        fread(buffer, sizeof(char), BinFileSize, streamIn);
+        buffer[BinFileSize] = '\0';
+    }
     const char* cmd = "Access Granted$";
 
     strcpy(buffer + 114, cmd);
@@ -118,4 +119,37 @@ size_t fsize(const char* filename) {
         return st.st_size;
 
     return -1;
+}
+
+void ConfigText(sf::Text *text, sf::Font *font, const char* string, sf::Color color, sf::Text::Style style) {
+    text->setFont(*font);
+    text->setCharacterSize(TEXT_SIZE);
+
+    text->setFillColor(color);
+    text->setString(string);
+    text->setPosition(CRACKTEXT_X, CRACKTEXT_Y);
+
+    text->setStyle(style);
+
+    return;
+}
+
+void ConfigTable(sf::RectangleShape* rectangular, sf::Color outLinecolor, sf::Color color) {
+    rectangular->setSize(sf::Vector2f(TABLE_WIDTH, TABLE_HEIGTH));
+    rectangular->setOutlineColor(outLinecolor);
+    rectangular->setFillColor(color);
+    rectangular->setOutlineThickness(TABLE_THICKNESS);
+    rectangular->setPosition(TABLE_X_POSITION, TABLE_Y_POSITION);
+}
+
+void drawMiniGame(sf::RenderWindow* window, Background* background, sf::Text* text, sf::RectangleShape* table, Hero* hero) {
+    window->draw((*background).getSprite());
+    window->draw(*table);
+    window->draw(*text);
+    window->draw((*hero).getSprite());
+}
+
+void drawScene(sf::RenderWindow* window, Background* background, ProgressBar* progressBar) {
+    window->draw((*background).getSprite());
+    window->draw((*progressBar).getSprite());
 }
